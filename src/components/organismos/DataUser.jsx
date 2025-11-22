@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import {
   UserAuth,
   BtnCircular,
@@ -15,13 +16,17 @@ export function DataUser({ stateConfig }) {
 
   const { user } = UserAuth();
   const { signout } = useAuthStore();
+  const navigate = useNavigate();
   const funcionXtipo = async (p) => {
     if (p.tipo === "cerrarsesion") {
       // queryClient.removeQueries();
       // queryClient.resetQueries();
       // queryClient.refetchQueries()
       // setiduser();
-      await signout();
+      try {
+        await signout();
+      } catch (e) {}
+      navigate("/login");
     }
   };
   return (

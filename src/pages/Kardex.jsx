@@ -28,30 +28,30 @@ export function Kardex() {
   const { mostrarMarca } = useMarcaStore();
   const { dataempresa } = useEmpresaStore();
   const { data, isLoading, error } = useQuery({
-    queryKey: ["mostrar productos", dataempresa.id],
-    queryFn: () => mostrarProductos({ _id_empresa: dataempresa.id }),
-    enabled: dataempresa.id != null,
+    queryKey: ["mostrar productos", dataempresa?.id],
+    queryFn: () => mostrarProductos({ _id_empresa: dataempresa?.id }),
+    enabled: !!dataempresa?.id,
   });
   //buscador productos
   const { data: buscar } = useQuery({
     queryKey: ["buscar productos", buscador],
     queryFn: () =>
-      buscarProductos({ descripcion: buscador, id_empresa: dataempresa.id }),
-    enabled: dataempresa.id != null,
+      buscarProductos({ descripcion: buscador, id_empresa: dataempresa?.id }),
+    enabled: !!dataempresa?.id,
   });
 
   //mostrar kardex
   const { data: datakardex } = useQuery({
-    queryKey: ["mostrar kardex", dataempresa.id],
-    queryFn: () => mostrarKardex({ id_empresa: dataempresa.id }),
-    enabled: dataempresa.id != null,
+    queryKey: ["mostrar kardex", dataempresa?.id],
+    queryFn: () => mostrarKardex({ id_empresa: dataempresa?.id }),
+    enabled: !!dataempresa?.id,
   });
   //buscador kardex
   const { data: buscarkardex } = useQuery({
     queryKey: ["buscar kardex", buscadorkardex],
     queryFn: () =>
-      buscarKardex({ buscador: buscadorkardex, id_empresa: dataempresa.id }),
-    enabled: dataempresa.id != null,
+      buscarKardex({ buscador: buscadorkardex, id_empresa: dataempresa?.id }),
+    enabled: !!dataempresa?.id,
   });
   //respuestas
   if (isLoading) {

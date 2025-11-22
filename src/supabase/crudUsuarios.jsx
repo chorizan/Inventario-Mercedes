@@ -40,10 +40,12 @@ export const MostrarUsuarios = async () => {
       .select()
       .eq("idauth", idAuthSupabase)
       .maybeSingle();
-    if (data) {
-      console.log("demoledor idauth", idAuthSupabase);
-      return data;
+    if (error) {
+      console.error("MostrarUsuarios error:", error);
+      return null;
     }
+    console.log("demoledor idauth", idAuthSupabase);
+    return data ?? null;
   } catch (error) {}
 };
 export const MostrarUsuariosTodos = async (p) => {

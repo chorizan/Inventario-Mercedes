@@ -85,14 +85,20 @@ export async function BuscarProductos(p) {
 }
 //REPORTES
 export async function ReportStockProductosTodos(p) {
-  const { data, error } = await supabase
-    .from(tabla)
-    .select()
-    .eq("id_empresa", p.id_empresa);
-  if (error) {
-    return;
+  try {
+    const { data, error } = await supabase
+      .from(tabla)
+      .select()
+      .eq("id_empresa", p.id_empresa);
+    if (error) {
+      console.error("ReportStockProductosTodos error:", error);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.error("ReportStockProductosTodos exception:", e);
+    return [];
   }
-  return data;
 }
 export async function ReportStockXProducto(p) {
   const { data, error } = await supabase

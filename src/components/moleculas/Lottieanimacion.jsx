@@ -1,15 +1,15 @@
 import styled from "styled-components";
-import Lottie from "react-lottie";
-export function Lottieanimacion({ alto, ancho, animacion }) {
-    const defaultOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: animacion,
-      };
+import Lottie from "lottie-react";
+
+export function Lottieanimacion({ alto = 150, ancho = 150, animacion }) {
   return (
     <Container>
-     <Lottie options={defaultOptions}
-      height={`${alto}px`} width={`${ancho}px`} isClickToPauseDisabled/>
+      <Lottie
+        animationData={animacion}
+        loop={true}
+        autoplay={true}
+        style={{ height: `${alto}px`, width: `${ancho}px` }}
+      />
     </Container>
   );
 }
