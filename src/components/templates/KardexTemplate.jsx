@@ -100,7 +100,25 @@ export function KardexTemplate({data}) {
                   const wrapper = `<div class=\"item\"><div class=\"title\">${(p.descripcion||"")}</div>${svgEl.outerHTML}<div class=\"sku\">${sku}</div></div>`;
                   return wrapper;
                 }).join("");
-                  const html = `<!doctype html><html><head><meta charset=\"utf-8\"><title>Códigos de barras</title><style>body{font-family:Arial,Helvetica,sans-serif;padding:14px} .grid{display:flex;flex-wrap:wrap;gap:8px} .item{width:calc(33.333% - 12px);box-sizing:border-box;margin:4px;padding:6px;border:0;display:flex;flex-direction:column;align-items:center;} .item .title{font-weight:600;margin-bottom:4px;text-align:center;font-size:11px;} .item svg{width:100%;height:auto;} .sku{margin-top:6px;font-size:9px;font-weight:600;text-align:center;color:#111;} @media print{ .item{page-break-inside:avoid;} }</style></head><body><div class=\"grid\">${svgs}</div><script>window.onload=function(){window.print()}</script></body></html>`;
+                  const html = `<!doctype html><html><head><meta charset=\"utf-8\"><title>Códigos de barras</title><style>
+                  /* Zebra ZD230 optimized print styles - 3 labels per row */
+                  :root{--gap:6px}
+                  html,body{height:100%;width:100%;margin:0;padding:0}
+                  body{font-family:Arial,Helvetica,sans-serif;padding:4mm;background:#fff}
+                  .grid{display:flex;flex-wrap:wrap;gap:var(--gap);justify-content:flex-start}
+                  /* each .item represents a single label; 3 columns per row */
+                  .item{width:calc(33.333% - var(--gap));box-sizing:border-box;margin:0;padding:6px;border:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+                  .item .title{font-weight:600;margin-bottom:4px;text-align:center;font-size:11px}
+                  .item svg{width:100%;height:auto;display:block}
+                  .sku{margin-top:6px;font-size:9px;font-weight:600;text-align:center;color:#111}
+                  /* print page rules: remove default margins and avoid splitting labels */
+                  @page{size:auto;margin:0}
+                  @media print{
+                    body{padding:2mm}
+                    .item{page-break-inside:avoid;break-inside:avoid-column}
+                    /* Disable browser headers/footers where possible (user may need to set margins to none) */
+                  }
+                  </style></head><body><div class=\"grid\">${svgs}</div><script>window.onload=function(){window.print()}</script></body></html>`;
                 const w = window.open();
                 if (!w) {
                   alert("Permite popups para imprimir/exportar");
