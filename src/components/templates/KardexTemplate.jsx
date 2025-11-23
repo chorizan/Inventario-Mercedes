@@ -101,24 +101,25 @@ export function KardexTemplate({data}) {
                   return wrapper;
                 }).join("");
                   const html = `<!doctype html><html><head><meta charset=\"utf-8\"><title>Códigos de barras</title><style>
-                  /* Zebra ZD230 optimized print styles - 3 labels per row */
-                  :root{--gap:6px}
+                  /* Zebra ZD230 label settings: labels are 30mm (W) x 40mm (H), 3 columns per row */
+                  :root{--label-w:30mm;--label-h:40mm;--gap:4mm}
                   html,body{height:100%;width:100%;margin:0;padding:0}
-                  body{font-family:Arial,Helvetica,sans-serif;padding:4mm;background:#fff}
-                  .grid{display:flex;flex-wrap:wrap;gap:var(--gap);justify-content:flex-start}
-                  /* each .item represents a single label; 3 columns per row */
-                  .item{width:calc(33.333% - var(--gap));box-sizing:border-box;margin:0;padding:6px;border:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
-                  .item .title{font-weight:600;margin-bottom:4px;text-align:center;font-size:11px}
-                  .item svg{width:100%;height:auto;display:block}
-                  .sku{margin-top:6px;font-size:9px;font-weight:600;text-align:center;color:#111}
-                  /* print page rules: remove default margins and avoid splitting labels */
-                  @page{size:auto;margin:0}
+                  body{font-family:Arial,Helvetica,sans-serif;padding:0;background:#fff}
+                  .sheet{width:100%;display:flex;justify-content:center}
+                  .grid{display:flex;flex-wrap:wrap;gap:var(--gap);justify-content:flex-start;max-width:calc(var(--label-w) * 3 + var(--gap) * 2)}
+                  /* each .item represents a single 30x40mm label */
+                  .item{width:var(--label-w);height:var(--label-h);box-sizing:border-box;margin:0;padding:4mm 3mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;border:0}
+                  .item .title{font-weight:600;margin:0 0 2mm 0;text-align:center;font-size:10px;line-height:1}
+                  .barcode-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%}
+                  .item svg{width:100%;height:auto;max-height:18mm;display:block}
+                  .sku{margin-top:2mm;font-size:9px;font-weight:600;text-align:center;color:#111}
+                  /* print page rules: set page width to exactly 3 labels wide (90mm) and minimal margins */
+                  @page{size:90mm auto;margin:0}
                   @media print{
-                    body{padding:2mm}
+                    body{padding:0}
                     .item{page-break-inside:avoid;break-inside:avoid-column}
-                    /* Disable browser headers/footers where possible (user may need to set margins to none) */
                   }
-                  </style></head><body><div class=\"grid\">${svgs}</div><script>window.onload=function(){window.print()}</script></body></html>`;
+                  </style></head><body><div class=\"sheet\"><div class=\"grid\">${svgs}</div></div><script>window.onload=function(){window.print()}</script></body></html>`;
                 const w = window.open();
                 if (!w) {
                   alert("Permite popups para imprimir/exportar");
