@@ -135,72 +135,69 @@ export function KardexTemplate({data}) {
           />
           <Btnsave
             titulo="Generar ZPL"
-            bgcolor="#ff8c00"
+            bgcolor="#111827"
             funcion={async () => {
               try {
                 const items = data || [];
                 if (!items.length) {
-                  alert("No hay productos para generar ZPL");
+                  alert('No hay productos para exportar');
                   return;
                 }
-                // Assumption: Zebra ZD230 at 203 dpi (~8 dots/mm)
-                const dpi = 203;
+                const dpi = 203; // typical Zebra ZD230 dpi
                 const dotsPerMm = dpi / 25.4;
-                const labelWmm = 30; // 30 mm width
-                const labelHmm = 40; // 40 mm height
-                const gapMm = 4; // gap between labels
-                const labelW = Math.round(labelWmm * dotsPerMm);
-                const labelH = Math.round(labelHmm * dotsPerMm);
-                const gap = Math.round(gapMm * dotsPerMm);
-                const cols = 3;
-                const pageWidth = labelW * cols + gap * (cols - 1);
+                const labelW = Math.round(30 * dotsPerMm); // 30mm
+                const labelH = Math.round(40 * dotsPerMm); // 40mm
+                const totalW = labelW * 3; // 3 columns
 
-                let zpl = "";
-                // start label format - we'll generate batches of rows
-                // iterate rows of 3 labels
-                for (let i = 0; i < items.length; i += cols) {
-                  zpl += "^XA\n"; // start label
-                  zpl += `^PW${pageWidth}\n`;
-                  zpl += `^LH0,0\n`;
-                  const rowIndex = Math.floor(i / cols);
-                  const yOffset = 0; // each label block will print sequentially; length controlled by labelH
+                const escapeZPL = (s) => String(s || '').replace(/\^|~|%/g, ' ');
 
-                  for (let c = 0; c < cols; c++) {
-                    const idx = i + c;
-                    if (idx >= items.length) continue;
-                    const p = items[idx];
-                    const code = String(p.codigobarras ?? "");
-                    const descripcion = String(p.descripcion ?? "");
-                    const sku = String(p.codigointerno || p.sku || "");
-                    const x = c * (labelW + gap);
-                    const y = 10; // small top margin in dots
-                    // Barcode (Code128) - use module width 2 and height ~18mm
-                    const barcodeHeight = Math.round(18 * dotsPerMm);
-                    zpl += `^FO${x},${y}^BY2,2,${barcodeHeight}^BCN,${barcodeHeight},Y,N,N^FD${code}^FS\n`;
-                    // Description text above barcode (small)
-                    const textY = y + barcodeHeight + 6;
-                    const fontHeight = Math.round(6 * dotsPerMm); // ~6mm font height
-                    zpl += `^FO${x + 6},${textY}^A0N,${fontHeight},${fontHeight}^FD${descripcion.substring(0,40)}^FS\n`;
-                    // SKU below
-                    const skuY = textY + fontHeight + 6;
-                    zpl += `^FO${x + 6},${skuY}^A0N,${fontHeight},${fontHeight}^FDSKU:${sku}^FS\n`;
-                  }
-                  // set label length and print one row
-                  zpl += `^XZ\n`;
+                const buildRow = (row) => {
+                  let z = '';
+                  z += '^XA\n';
+                  z += `^PW${totalW}\n`;
+                  z += `^LL${labelH}\n`;
+                  z += '^LH0,0\n';
+                  // optional quiet zones / home
+                  row.forEach((p, idx) => {
+                    const x = idx * labelW;
+                    const title = escapeZPL(p?.descripcion || '');
+                    const code = escapeZPL(p?.codigobarras || '');
+                    const sku = escapeZPL(p?.codigointerno || p?.sku || '');
+                    const titleY = 20;
+                    const barcodeY = 40;
+                    const skuY = barcodeY + 120;
+                    // title
+                    z += `^FO${x + 6},${titleY}^A0N,28,28^FD${title}^FS\n`;
+                    // barcode (Code128) - module, ratio, height
+                    z += `^BY2,2,100\n`;
+                    z += `^FO${x + 6},${barcodeY}^BCN,100,Y,N,N^FD${code}^FS\n`;
+                    // sku
+                    z += `^FO${x + 6},${skuY}^A0N,24,24^FD${sku}^FS\n`;
+                  });
+                  z += '^XZ\n';
+                  return z;
+                };
+
+                let zpl = '';
+                for (let i = 0; i < items.length; i += 3) {
+                  const row = items.slice(i, i + 3);
+                  // pad to 3
+                  while (row.length < 3) row.push({});
+                  zpl += buildRow(row);
                 }
 
-                const blob = new Blob([zpl], { type: "text/plain;charset=utf-8" });
+                const blob = new Blob([zpl], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
+                const a = document.createElement('a');
                 a.href = url;
-                a.download = `codigos_zebra_${new Date().toISOString()}.zpl`;
+                a.download = `etiquetas_zebra_${new Date().toISOString()}.zpl`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
                 URL.revokeObjectURL(url);
               } catch (err) {
                 console.error(err);
-                alert("Error generando ZPL: " + (err.message || err));
+                alert('Error generando ZPL: ' + (err.message || err));
               }
             }}
           />
